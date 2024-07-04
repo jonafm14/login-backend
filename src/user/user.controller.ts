@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, BadRequestException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { CreateEmailTokenDto } from 'src/email-token/dto/create-email-token.dto';
 
-@UseGuards(JwtAuthGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -14,6 +14,17 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
+  @Post('generate-email-token')
+  async generateEmailToken(@Body() createEmailTokenDto: CreateEmailTokenDto): Promise<void> {
+    const { email } = createEmailTokenDto
+    if (!email) {
+      throw new BadRequestException('El email es obligatorio');
+    }
+
+    await this.userService.generateEmailToken(createEmailTokenDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<User[]> {
     return this.userService.findAll();

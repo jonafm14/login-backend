@@ -5,6 +5,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { EmailTokenModule } from './email-token/email-token.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+
 
 @Module({
   imports: [
@@ -21,8 +24,24 @@ import { AuthModule } from './auth/auth.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true
     }),
+    MailerModule.forRoot({
+        transport: {
+          host: process.env.EMAIL_HOST,
+          port: 587,
+          secure: false,
+          auth :{
+            user: process.env.EMAIL_USERNAME,
+            pass: process.env.EMAIL_PASSWORD,
+          },
+        },
+        defaults: {
+          from: '"No Reply" <mailtrap@demomailtrap.com>',
+        }
+    }),
     UserModule,
-    AuthModule],
+    AuthModule,
+    EmailTokenModule,
+    MailerModule],
   controllers: [AppController],
   providers: [AppService],
 })
