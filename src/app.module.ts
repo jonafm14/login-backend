@@ -25,19 +25,19 @@ import { MailerModule } from '@nestjs-modules/mailer';
       synchronize: true
     }),
     MailerModule.forRoot({
-        transport: {
-          host: process.env.EMAIL_HOST,
-          port: 587,
-          secure: false,
-          auth :{
-            user: process.env.EMAIL_USERNAME,
-            pass: process.env.EMAIL_PASSWORD,
-          },
+      transport: {
+        host: process.env.EMAIL_HOST,
+        port: 587,
+        secure: false,
+        auth :{
+          user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD,
         },
-        defaults: {
-          from: '"No Reply" <mailtrap@demomailtrap.com>',
-        }
-    }),
+      },
+      defaults: {
+        from: '"No Reply" <mailtrap@demomailtrap.com>',
+      }
+  }),
     UserModule,
     AuthModule,
     EmailTokenModule,

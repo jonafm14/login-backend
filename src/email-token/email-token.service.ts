@@ -36,11 +36,14 @@ export class EmailTokenService {
     const confirmationUrl = `http://localhost:3000/email-token/confirmacion/email/${token}`;
 
     // Configura y envía el email con el token y la URL de confirmación
-    await this.mailerService.sendMail({
+    const mailOptions = {
       to: email,
       subject: 'Confirmación de Email',
       text: `¡Gracias por registrarte en nuestro sitio! Haz clic en el siguiente enlace para confirmar tu dirección de correo electrónico:\n\n${confirmationUrl}\n\nSi no solicitaste esto, ignora este mensaje.`,
-    });
+    };
+  
+    // Configura y envía el email con el token y la URL de confirmación
+    await this.mailerService.sendMail(mailOptions);
   }
 
   async confirmEmailToken(token: string): Promise<void> {
