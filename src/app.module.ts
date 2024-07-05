@@ -29,7 +29,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
         host: process.env.EMAIL_HOST,
         port: 587,
         secure: false,
-        auth :{
+        auth: {
           user: process.env.EMAIL_USERNAME,
           pass: process.env.EMAIL_PASSWORD,
         },
@@ -37,7 +37,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
       defaults: {
         from: '"No Reply" <mailtrap@demomailtrap.com>',
       }
-  }),
+    }),
     UserModule,
     AuthModule,
     EmailTokenModule,
@@ -45,4 +45,4 @@ import { MailerModule } from '@nestjs-modules/mailer';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
