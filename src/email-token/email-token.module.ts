@@ -7,13 +7,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstant } from 'src/auth/jwt.constants';
 import { AuthModule } from 'src/auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { User } from 'src/user/entities/user.entity';
 
 @Module({
   imports: [
     AuthModule,
     MailerModule,
-    User,
     TypeOrmModule.forFeature([EmailToken]),
     JwtModule.register({
       secret: jwtConstant.secret,

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -11,7 +11,7 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private readonly emailTokenService: EmailTokenService
+    private readonly emailTokenService: EmailTokenService,
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -50,5 +50,22 @@ export class UserService {
 
     await this.emailTokenService.sendEmailToken(email, token)
   }
+
+  async confirmEmailToken(token: string): Promise<void> {
+    const userId = await this.emailTokenService.confirmEmailToken(token);
+
+    if (userId) {
+      const findUser = await this.userRepository.findOne({ where: { id: userId } });
+
+      if (findUser) {
+        await this.userRepository.update({ id: userId }, { active: true });
+      } else {
+        throw new NotFoundException(404, 'User not found');
+      }
+    } else {
+      throw new BadRequestException(404, 'Invalid token');
+    }
+  }
+
 
 }

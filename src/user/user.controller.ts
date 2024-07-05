@@ -7,7 +7,7 @@ import { CreateEmailTokenDto } from 'src/email-token/dto/create-email-token.dto'
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
@@ -22,6 +22,15 @@ export class UserController {
     }
 
     await this.userService.generateEmailToken(createEmailTokenDto);
+  }
+
+  @Get('confirmacion/email/:token')
+  async confirmEmailToken(@Param('token') token: string): Promise<void> {
+    if (!token) {
+      throw new BadRequestException('Este enlace ya no funciona');
+    }
+
+    await this.userService.confirmEmailToken(token);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -33,7 +33,7 @@ export class EmailTokenService {
 
   async sendEmailToken(email: string, token: string): Promise<void> {
     // Construye la URL de confirmación
-    const confirmationUrl = `http://localhost:3000/email-token/confirmacion/email/${token}`;
+    const confirmationUrl = `http://localhost:3000/user/confirmacion/email/${token}`;
 
     // Configura y envía el email con el token y la URL de confirmación
     const mailOptions = {
@@ -41,12 +41,12 @@ export class EmailTokenService {
       subject: 'Confirmación de Email',
       text: `¡Gracias por registrarte en nuestro sitio! Haz clic en el siguiente enlace para confirmar tu dirección de correo electrónico:\n\n${confirmationUrl}\n\nSi no solicitaste esto, ignora este mensaje.`,
     };
-  
+
     // Configura y envía el email con el token y la URL de confirmación
     await this.mailerService.sendMail(mailOptions);
   }
 
-  async confirmEmailToken(token: string): Promise<void> {
+  async confirmEmailToken(token: string): Promise<string> {
     try {
       const decodedToken = this.jwtService.verify(token); // Verifica y decodifica el token
       const userId = decodedToken.id;
@@ -60,15 +60,13 @@ export class EmailTokenService {
         throw new NotFoundException('Token de email no válido');
       }
 
-      // Ejemplo de cómo podrías usar emailToken (en este caso, no lo estamos usando explícitamente)
-      // Aquí podrías realizar cualquier acción adicional necesaria, como activar la cuenta del usuario, etc.
-      console.log('Token de email confirmado correctamente');
-
       // Eliminar el token de la base de datos
       await this.emailTokenRepository.delete({ token: token });
 
       // Aquí podrías realizar cualquier acción adicional necesaria, como activar la cuenta del usuario, etc.
-      console.log('Token de email confirmado y eliminado correctamente')
+      console.log('Token de email confirmado y eliminado correctamente');
+
+      return userId; // Devolver el userId
     } catch (error) {
       throw new BadRequestException('Token de email inválido o expirado');
     }
