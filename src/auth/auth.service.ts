@@ -26,6 +26,17 @@ export class AuthService {
     return this.userRepository.save(newUser);
   }
 
+  async updatePassword(userId: string, newPassword: string): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (user) {
+      const saltOrRounds = 10; // Número de rondas para generar el salt
+      const hashedPassword = await bcrypt.hash(newPassword, saltOrRounds); // Hasheando usando bcrypt
+      user.password = hashedPassword;
+      await this.userRepository.save(user);
+    }
+    const userTwo = await this.userRepository.findOne({ where: { id: userId } });
+  }
+
   async login(userObjectLogin: LoginAuthDto) {
     const { email, password } = userObjectLogin
     const findUser = await this.userRepository.findOne({ where: { email } });

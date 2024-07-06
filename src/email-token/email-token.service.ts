@@ -46,6 +46,21 @@ export class EmailTokenService {
     await this.mailerService.sendMail(mailOptions);
   }
 
+  async sendPasswordToken(email: string, token: string): Promise<void> {
+    // Construye la URL de confirmación
+    const confirmationUrl = `http://localhost:3000/user/confirmacion/password/${token}`;
+
+    // Configura y envía el email con el token y la URL de confirmación
+    const mailOptions = {
+      to: email,
+      subject: 'Recuperación de contraseña',
+      text: `Haz clic en el siguiente enlace para restablecer tu contraseña:\n\n${confirmationUrl}\n\nSi no solicitaste esto, ignora este mensaje.`,
+    };
+
+    // Configura y envía el email con el token y la URL de confirmación
+    await this.mailerService.sendMail(mailOptions);
+  }
+
   async confirmEmailToken(token: string): Promise<string> {
     try {
       const decodedToken = this.jwtService.verify(token); // Verifica y decodifica el token
@@ -63,8 +78,28 @@ export class EmailTokenService {
       // Eliminar el token de la base de datos
       await this.emailTokenRepository.delete({ token: token });
 
-      // Aquí podrías realizar cualquier acción adicional necesaria, como activar la cuenta del usuario, etc.
-      console.log('Token de email confirmado y eliminado correctamente');
+      return userId; // Devolver el userId
+    } catch (error) {
+      throw new BadRequestException('Token de email inválido o expirado');
+    }
+  }
+
+  async confirmPasswordToken(token: string): Promise<string> {
+    try {
+      const decodedToken = this.jwtService.verify(token); // Verifica y decodifica el token
+      const userId = decodedToken.id;
+
+      // Buscar el emailToken en la base de datos por userId y token
+      const emailToken = await this.emailTokenRepository.findOne({
+        where: { user: { id: userId }, token },
+      });
+
+      if (!emailToken) {
+        throw new NotFoundException('Token de email no válido');
+      }
+
+      // Eliminar el token de la base de datos
+      await this.emailTokenRepository.delete({ token: token });
 
       return userId; // Devolver el userId
     } catch (error) {

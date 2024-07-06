@@ -5,6 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { EmailTokenService } from 'src/email-token/email-token.service';
 import { CreateEmailTokenDto } from 'src/email-token/dto/create-email-token.dto';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UserService {
@@ -12,6 +13,7 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private readonly emailTokenService: EmailTokenService,
+    private authService: AuthService,
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -51,6 +53,23 @@ export class UserService {
     await this.emailTokenService.sendEmailToken(email, token)
   }
 
+  async generatePasswordToken(createEmailTokenDto: CreateEmailTokenDto): Promise<void> {
+    const { email } = createEmailTokenDto;
+    const user = await this.userRepository.findOne({ where: { email } });
+
+    if (!user) {
+      throw new NotFoundException(`No se encontró un usuario con el email ${email}`);
+    }
+
+    // Asignar el ID del usuario al DTO
+    createEmailTokenDto.id = user.id;
+
+    // Llamar al servicio para enviar el email con el token
+    const token = await this.emailTokenService.generateAndSaveToken(user);
+
+    await this.emailTokenService.sendPasswordToken(email, token)
+  }
+
   async confirmEmailToken(token: string): Promise<void> {
     const userId = await this.emailTokenService.confirmEmailToken(token);
 
@@ -67,5 +86,21 @@ export class UserService {
     }
   }
 
+  async confirmPasswordToken(token: string): Promise<string | null> {
+    const userId = await this.emailTokenService.confirmPasswordToken(token);
+
+    if (userId) {
+      const findUser = await this.userRepository.findOne({ where: { id: userId } });
+      if (findUser) {
+        return userId;
+      }
+    }
+    return null;
+  }
+
+  async updatePassword(userId: string, password:string): Promise<string | null> {
+    await this.authService.updatePassword(userId, password)
+    return null
+  }
 
 }
