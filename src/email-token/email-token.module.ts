@@ -5,12 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmailToken } from './entities/email-token.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstant } from 'src/auth/jwt.constants';
-import { AuthModule } from 'src/auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
-    AuthModule,
     MailerModule,
     TypeOrmModule.forFeature([EmailToken]),
     JwtModule.register({
