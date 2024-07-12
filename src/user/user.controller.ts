@@ -5,7 +5,7 @@ import { User } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateEmailTokenDto } from 'src/email-token/dto/create-email-token.dto';
 import { AuthService } from 'src/auth/auth.service';
-import { Response } from 'express'; 
+import { Response } from 'express';
 
 @Controller('user')
 export class UserController {
@@ -39,8 +39,8 @@ export class UserController {
     await this.userService.generatePasswordToken(createEmailTokenDto);
   }
 
-  @Get('confirmacion/email/:token')
-  async confirmEmailToken(@Param('token') token: string): Promise<void> {
+  @Post('confirmacion/email')
+  async confirmEmailToken(@Body('token') token: string): Promise<void> {
     if (!token) {
       throw new BadRequestException('Este enlace ya no funciona');
     }
